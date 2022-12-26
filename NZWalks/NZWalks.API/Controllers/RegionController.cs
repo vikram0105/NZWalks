@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using NZWalks.API.Models.Domain;
+using NZWalks.API.Repository;
 
 namespace NZWalks.API.Controllers
 {
@@ -7,35 +9,42 @@ namespace NZWalks.API.Controllers
     [Route("controller")]
     public class RegionController : Controller
     {
-        [HttpGet]
-        public IActionResult GetAllRegion()
+        private readonly IRegionsRepository _regionsRepository;
+        private readonly IMapper _mapper;
+        
+        public RegionController(IRegionsRepository regionsRepository, IMapper mapper)
         {
-            var regions = new List<Region>()
-            {
-                new Region()
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Wellinton",
-                    Code = "WLG",
-                    Area = 227755,
-                    Lat = 1.8822,
-                    Long = 299.88,
-                    Poulation = 500000
-                },
+            this._regionsRepository = regionsRepository;            
+            this._mapper = mapper;
+        }
 
-                new Region()
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Auckland",
-                    Code = "AUCK",
-                    Area = 227755,
-                    Lat = 1.8822,
-                    Long = 299.88,
-                    Poulation = 500000
-                }
-            };
+        [HttpGet]
+        public async Task<IActionResult> GetAllRegion()
+        {
+            var regions = await _regionsRepository.GetAllAsync();
 
-           return Ok(regions);
+            //return dto
+
+            //var regionsDto = new List<Models.Dtos.RegionDto>();
+
+            //regions.ToList().ForEach(region => {
+            //    var regionDto = new Models.Dtos.RegionDto()
+            //    {
+            //        Id = region.Id,
+            //        Code = region.Code,
+            //        Name = region.Name,
+            //        Area = region.Area,
+            //        Lat = region.Lat,
+            //        Long = region.Long,
+            //        Poulation = region.Poulation
+            //    };
+
+            //    regionsDto.Add(regionDto);
+            //});
+
+            var regionsDto = _mapper.Map<List<Models.Dtos.RegionDto>>(regions);
+
+           return Ok(regionsDto);
         }
     }
 }
